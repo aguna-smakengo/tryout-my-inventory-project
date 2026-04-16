@@ -273,3 +273,16 @@ After deploying, test each feature end-to-end:
 Check **CloudWatch Logs** for each Lambda to debug errors.
 
 ---
+
+## Verification
+
+After deploying, test each feature end-to-end:
+- Items load from RDS via API Gateway
+- Add, update, and delete items work correctly
+- Activity log shows history from DynamoDB
+- Items with `stok = 0` display a red **Habis** badge
+- Manually invoke `inventory-low-stock-checker` and verify SNS email is received
+
+Check **CloudWatch Logs** for each Lambda to debug errors.
+
+---
