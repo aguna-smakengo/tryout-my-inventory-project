@@ -144,6 +144,7 @@ def handler(event, context):
         # --- DELETE: DELETE /barang/<id> ---
         elif http_method == 'DELETE' and item_id:
             cursor.execute("DELETE FROM barang WHERE id = %s", (item_id,))
+            conn.commit()
             log_to_dynamo(item_id, 'DELETE', "Barang dihapus dari sistem")
             response_body = {"message": "Barang berhasil dihapus"}
 

@@ -137,24 +137,24 @@ const AddItemModal = ({ onClose, onSave }) => {
 };
 
 // ─── Modal: Update Stock ──────────────────────────────────────
-const StockModal = ({ item, aksi, onClose, onConfirm }) => {
+const StockModal = ({ item, action, onClose, onConfirm }) => {
   const [jumlah, setJumlah] = useState(1);
   const [saving, setSaving] = useState(false);
 
   const handleConfirm = async () => {
     if (jumlah < 1) return;
     setSaving(true);
-    await onConfirm(item.id, aksi, jumlah);
+    await onConfirm(item.id, action, jumlah);
     setSaving(false);
     onClose();
   };
 
-  const isKurang = aksi === 'kurang';
+  const isKurang = action === 'kurang';
   const accent = isKurang ? '#ef4444' : '#22c55e';
 
   return (
     <div style={{
-      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)',
+      position: 'fixed', inset: 0, background: 'rgba(61, 48, 48, 0.7)',
       display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 500
     }} onClick={onClose}>
       <div onClick={e => e.stopPropagation()} style={{
@@ -215,7 +215,7 @@ const App = () => {
   const [histLoading, setHistLoading] = useState(false);
   const [toast, setToast]             = useState(null);
   const [showAdd, setShowAdd]         = useState(false);
-  const [stockModal, setStockModal]   = useState(null); // { item, aksi }
+  const [stockModal, setStockModal]   = useState(null); // { item, action }
   const [deleteConfirm, setDeleteConfirm] = useState(null);
 
   const showToast = (msg, type = 'info') => setToast({ msg, type });
@@ -249,16 +249,16 @@ const App = () => {
   };
 
   // ── Handle stock update ──
-  const handleStock = async (id, aksi, jumlah) => {
+  const handleStock = async (id, action, jumlah) => {
     try {
       const res = await fetch(`${API_URL}/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ aksi, jumlah })
+        body: JSON.stringify({ action, jumlah })
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Gagal update stok');
-      showToast(`Stok berhasil di${aksi === 'tambah' ? 'tambah' : 'kurangi'}! Stok baru: ${data.stok_baru}`, 'success');
+      showToast(`Stok berhasil di${action === 'tambah' ? 'tambah' : 'kurangi'}! Stok baru: ${data.stok_baru}`, 'success');
       await fetchItems();
       if (selectedItem?.id === id) fetchHistory(id);
     } catch (e) {
@@ -270,7 +270,7 @@ const App = () => {
   const handleAddItem = async (nama, stok) => {
     try {
       const res  = await fetch(API_URL, {
-        method: 'GET',
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nama, stok })
       });
@@ -287,7 +287,7 @@ const App = () => {
   // ── Delete item ──
   const handleDelete = async (id, nama) => {
     try {
-      const res = await fetch(`${API_URL}${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Gagal menghapus barang');
       showToast(`"${nama}" berhasil dihapus.`, 'success');
       if (selectedItem?.id === id) { setSelectedItem(null); setHistory([]); }
@@ -419,7 +419,7 @@ const App = () => {
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.07)' }}>
-                      {['Produk', 'Stok', 'Status', 'Aksi'].map((h, i) => (
+                      {['Produk', 'Stok', 'Status', 'action'].map((h, i) => (
                         <th key={h} style={{
                           padding: '12px 16px', color: '#475569', fontSize: 11, fontWeight: 700,
                           textTransform: 'uppercase', letterSpacing: '.06em',
@@ -478,12 +478,12 @@ const App = () => {
                           <td style={{ padding: '14px 16px' }} onClick={e => e.stopPropagation()}>
                             <div style={{ display: 'flex', justifyContent: 'center', gap: 6 }}>
                               <button title="Tambah stok"
-                                onClick={() => setStockModal({ item, aksi: 'tambah' })}
+                                onClick={() => setStockModal({ item, action: 'tambah' })}
                                 style={s.iconBtn('#22c55e','rgba(34,197,94,0.12)')}>
                                 <Plus size={15}/>
                               </button>
                               <button title="Kurangi stok"
-                                onClick={() => setStockModal({ item, aksi: 'kurang' })}
+                                onClick={() => setStockModal({ item, action: 'kurang' })}
                                 disabled={item.stok <= 0}
                                 style={s.iconBtn('#ef4444', item.stok <= 0 ? 'rgba(239,68,68,0.05)' : 'rgba(239,68,68,0.12)')}>
                                 <Minus size={15}/>
@@ -527,8 +527,8 @@ const App = () => {
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   {history.map(log => {
-                    const isIn   = log.aksi === 'STOCK_IN' || log.aksi === 'INITIAL_STOCK';
-                    const isDel  = log.aksi === 'DELETE';
+                    const isIn   = log.action === 'STOCK_IN' || log.action === 'INITIAL_STOCK';
+                    const isDel  = log.action === 'DELETE';
                     const color  = isDel ? '#ef4444' : isIn ? '#22c55e' : '#f97316';
                     return (
                       <div key={log.log_id} style={{
@@ -538,7 +538,7 @@ const App = () => {
                         <div style={{ width: 3, borderRadius: 4, background: color, flexShrink: 0, minHeight: 36 }}/>
                         <div>
                           <div style={{ fontSize: 12, fontWeight: 700, color }}>
-                            {log.aksi}
+                            {log.action}
                           </div>
                           <div style={{ fontSize: 12, color: '#94a3b8', margin: '2px 0' }}>{log.keterangan}</div>
                           <div style={{ fontSize: 10, color: '#475569' }}>
@@ -560,7 +560,7 @@ const App = () => {
       {stockModal && (
         <StockModal
           item={stockModal.item}
-          aksi={stockModal.aksi}
+          action={stockModal.action}
           onClose={() => setStockModal(null)}
           onConfirm={handleStock}
         />

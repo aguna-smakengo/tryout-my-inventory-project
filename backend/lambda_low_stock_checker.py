@@ -10,8 +10,9 @@ DB_NAME = os.environ.get('DATABASE_NAME')
 DB_USER = os.environ.get('DATABASE_USER')
 DB_PASS = os.environ.get('DATABASE_PASS')
 SNS_TOPIC_ARN = os.environ.get('SNS_TOPIC_ARN')
+AWS_REGION = os.environ.get('AWS_REGION')
 
-sns_client = boto3.client('sns', region_name='us-west-2')
+sns_client = boto3.client('sns', region_name=AWS_REGION)
 
 def handler(event, context):
     """
