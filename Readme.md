@@ -129,6 +129,12 @@ Create lambda layer based on requirements.txt file inside backend!
 
 Create lambda function to support python3.13 version
 
+
+* sudo dnf install -y python3.12 python3.12-pip
+* mkdir -p python
+* python3.12 -m pip install psycopg2-binary -t python
+* zip -r layer.zip python
+
 ---
 
 ## Step 5 — Lambda Functions
