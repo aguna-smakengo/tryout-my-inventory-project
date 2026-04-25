@@ -135,9 +135,7 @@ Create lambda function to support python3.13 version
 * python3.12 -m pip install psycopg2-binary -t python
 * zip -r layer.zip python
 
-:::info IMPORTANT
-command above is only to install psycopg2-binary for the layer. but there is lambda function that also need **pandas**. so you need to also install pandas inside layer!
-:::
+> command above is only to install psycopg2-binary for the layer. but there is lambda function that also need **pandas**. so you need to also install pandas inside layer!
 
 ---
 
